@@ -16,8 +16,18 @@
 #include <string.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <libaudit.h>
 
 #define UNUSED(x) x __attribute__((unused))
+
+/*
+ * Linux specific - requires libaudit
+ */
+static const char *syscall_name(long syscall)
+{
+	return audit_syscall_to_name(syscall,
+								 audit_detect_machine());
+}
 
 static void err_exit(const char *prefix)
 {
@@ -63,9 +73,7 @@ static int _parent()
 						      	  NULL)) == -1) {
 				break;
 			}
-			printf("the child made a "
-			   	   "system call %ld\n",
-			   	   syscall);
+			printf("%s\n", syscall_name(syscall));
 		} else {
 			syscall_enter = true;
 		}
