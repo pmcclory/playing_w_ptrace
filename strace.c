@@ -35,12 +35,12 @@ static void err_exit(const char *prefix)
 	exit(-1);
 }
 
-static void _child(UNUSED(int argc), UNUSED(char **argv))
+static void _child(UNUSED(int argc), char **argv)
 {
 	if (ptrace(PTRACE_TRACEME, 0, NULL, NULL) == -1) {
 		err_exit("exit failed");
 	}
-	execl("/bin/ls", "ls", NULL);
+	execvp(argv[0], argv);
 }
 
 static int _parent()
@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 	pid_t child;
 	child = fork();
 	if (child == 0) {
-		_child(argc, argv);
+		_child(argc, argv+1);
 	} else {
 		if (_parent() != 0) {
 			err_exit("parent failed");
